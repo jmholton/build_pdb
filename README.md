@@ -61,7 +61,7 @@ ATOM     14  O   ALA     3      -0.564  -0.000  11.847  1.00 20.00
 ATOM     15  CB  ALA     3       2.153   1.233  10.171  1.00 20.00
 ATOM     16  OXT ALA     3       1.519  -0.000  12.707  1.00 20.00
 ```
-Which is the start of a peptide chain. You can add more by pre-pending more build commands to the tripeptide.pdb file and running that through `build_n2c.awk` again.
+Which is the start of a peptide chain. You can add more by pre-pending more build commands to the tripeptide.pdb file and running that through `build_n2c.awk` again. And, of course, you can start with a real PDB file you have been working with and tack residues onto its C terminus. In all cases, however, the `BUILD` commands must appear in the flow of text before the atoms you want to build off of appear. To add residues onto the N terminus, use the `build_c2n.awk` script below.
 ##### debugging
 If you only see one ALA, its probably because your `echo` command doesn't know what `\n` means. It is supposed to denote a newline. Try this instead:
 ```
@@ -83,7 +83,7 @@ then you need to run this:
 ```
 chmod a+x ./build_*.awk
 ```
-If you get this error:
+If, after doing that, you get this error:
 ```
 ./build_n2c.awk: Command not found.
 ```
