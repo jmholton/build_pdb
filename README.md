@@ -40,9 +40,9 @@ The next thing you might want to do is read about how unix command-line pipes wo
 #### peptide synthesis
 The first thing you might want do do is try a one-liner, like this:
 ```
-echo "BUILD ALA\nBUILD ALA\nBUILD ALA" | ./build_n2c.awk | tee tripeptide.pdb
+echo "BUILD ALA\nBUILD ALA\nBUILD ALA" | build_n2c.awk | tee tripeptide.pdb
 ```
-and you should see:
+That vertical bar character `|` is a unix pipe. This tells the shell to take the text that would normally have gone to the screen from the `echo` command and re-direct it as though you typed it yourself on the keyboard into the running `build_n2c.awk` program. The second pipe `|` also takes what would have been printed onto the screen by `build_n2c.awk` and re-directs it into the next program, which is `tee`. This is analogous to a t-junction in a water pipe, where the input is split in two: copied to the screen (stdout), as well as written to the file `tripeptide.pdb`. That text should look like this:
 ```
 ATOM      1  N   ALA     1      -1.501  -0.000   2.251  1.00 20.00
 ATOM      2  CA  ALA     1      -0.467  -0.000   3.268  1.00 20.00
@@ -61,9 +61,17 @@ ATOM     14  O   ALA     3      -0.564  -0.000  11.847  1.00 20.00
 ATOM     15  CB  ALA     3       2.153   1.233  10.171  1.00 20.00
 ATOM     16  OXT ALA     3       1.519  -0.000  12.707  1.00 20.00
 ```
-That vertical bar character `|` is a unix pipe. This tells the shell to take the text that would normally have gone to the screen from the `echo` command and re-direct it as though you typed it yourself on the keyboard into the running `build_n2c.awk` program. The second pipe `|` also takes what would have been printed onto the screen by `build_n2c.awk` and re-directs it into the next program, which is `tee`. This is analogous to a t-junction in a water pipe, where the input is split in two: copied to the screen (stdout), as well as written to the file `tripeptide.pdb`. 
+Which is the start of a peptide chain. You can add more by pre-pending more build commands to the tripeptide.pdb file and running that through `build_n2c.awk` again.
 ##### debugging
 If you only see one ALA, its probably because your `echo` command doesn't know what `\n` means. It is supposed to denote a newline. Try this instead:
+```
+/bin/echo -e "BUILD ALA\nBUILD ALA\nBUILD ALA" | build_n2c.awk | tee tripeptide.pdb
+```
+If you get an error:
+```
+build_n2c.awk: Command not found.
+```
+then the script may not be in your `$PATH`. Sometimes the current working directory is not in the `$PATH`. Try copying it into the current working directory and run it like this:
 ```
 /bin/echo -e "BUILD ALA\nBUILD ALA\nBUILD ALA" | ./build_n2c.awk | tee tripeptide.pdb
 ```
@@ -71,7 +79,7 @@ If you get an error:
 ```
 ./build_n2c.awk: Permission denied.
 ```
-Then you need to run this:
+then you need to run this:
 ```
 chmod a+x ./build_*.awk
 ```
@@ -102,7 +110,7 @@ This may seem like a lot of problems, but it is also all of the problems you mig
 #### mutagenesis
 Now that you have an alanine tripeptide, lets change one of the residues to methionine:
 ```
-echo "BUILD MET 2 180 180 180" | cat - tripeptide.pdb | ./build_side.awk | tee mutated.pdb
+echo "BUILD MET 2 180 180 180" | cat - tripeptide.pdb | build_side.awk | tee mutated.pdb
 ```
 and you should see:
 ```
@@ -130,7 +138,7 @@ END
 The three chi angles are all 180 deg in this case. That `cat - tripeptide.pdb` command means to take the text that comes in from stdin and concatenate it with the `tripeptide.pdb` file, putting the stdin text first.<br>
  If you leave out any of the chi angles then the atom at the end of that dihedral won't be built.  For example, `BUILD LYS 2 60 60` will build a lysine as a norvaline (but call it `LYS`). If you don't care about dihedrals and just want the most popular rotamer, replace the numbers with question marks:
 ```
-echo "BUILD MET 2 ? ? ?" | cat - tripeptide.pdb | ./build_side.awk | tee mutated.pdb
+echo "BUILD MET 2 ? ? ?" | cat - tripeptide.pdb | build_side.awk | tee mutated.pdb
 ```
 which will produce:
 ```
@@ -161,7 +169,7 @@ Normally, this script passes-thru all atoms not involved in rebuilding. If you w
 #### adding on to the N terminus
 The N terminus can often be disordered, so I wrote a separate program for tacking atoms onto it
 ```
-cat << EOF | cat - mutated.pdb | ./build_c2n.awk | tee addN.pdb
+cat << EOF | cat - mutated.pdb | build_c2n.awk | tee addN.pdb
 BUILD MET   0 -40
 BUILD ALA -64 -40
 BUILD PRO -60 -40
