@@ -1,7 +1,7 @@
 #! /bin/awk -f
 #
 #
-#	build a polypeptide chain with given phi-psi angles
+#	build a polypeptide chain with given phi-psi angles                      -James Holton  4-7-25
 #	in C-N direction
 #
 # specify what residues to tack onto the N terminus like this:
@@ -209,7 +209,7 @@ if(resnum ~ /^[A-Z]/) chain = substr(resnum,1,1)
 while(resnum ~ /^[A-Z]/) resnum = substr(resnum,2)
 ++atoms_printed
 
-entry=sprintf("ATOM %6d  %-3s %3s %1s%4d     %7.3f %7.3f %7.3f %5.2f%6.2f\n",\
+entry=sprintf("ATOM %6d  %-3s %3s %1s%4d    %8.3f%8.3f%8.3f %5.2f%6.2f\n",\
 atoms_printed,name,restyp,chain,resnum,atom["X"],atom["Y"],atom["Z"],occ,Bfac);
 
 return entry

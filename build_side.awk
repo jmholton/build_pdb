@@ -1,7 +1,7 @@
 #! /bin/awk -f
 #
 #
-#        (re)build amino acid side chains with given chi angles                      -James Holton  3-21-23
+#        (re)build amino acid side chains with given chi angles                      -James Holton  3-11-26
 #
 # to rebuild a given side chain, put a line in the PDB (before the ATOM data)
 # like this:
@@ -196,6 +196,7 @@ toupper($1) ~ /^BUILD/ && NF>=3{
         # we have everything we need to build the side chain
         split(Build_angles[build], chi)
 
+        side_chain = ""
         if(restyp == "GLY") side_chain = ""
         if(restyp == "ALA") side_chain = build_ALA(N, CA, C);
 
@@ -219,6 +220,7 @@ toupper($1) ~ /^BUILD/ && NF>=3{
         if(restyp == "TRP") side_chain = build_TRP(N,CA,C, chi[1], chi[2]);
 
         if(restyp == "MET") side_chain = build_MET(N,CA,C, chi[1], chi[2], chi[3]);
+        if(restyp == "MSE") side_chain = build_MSE(N,CA,C, chi[1], chi[2], chi[3]);
         if(restyp == "NRL") side_chain = build_NRL(N,CA,C, chi[1], chi[2], chi[3]);
         if(restyp == "GLU") side_chain = build_GLU(N,CA,C, chi[1], chi[2], chi[3]);
         if(restyp == "GLN") side_chain = build_GLN(N,CA,C, chi[1], chi[2], chi[3]);
@@ -501,6 +503,43 @@ function build_MET(N,CA,C,chi1,chi2,chi3) {
     next_atom(CB,CG,SD,chi3,109.5,1.78);
     CE["X"]=new_atom["X"]; CE["Y"]=new_atom["Y"]; CE["Z"]=new_atom["Z"];
     side_chain = side_chain sprint_atom(CE,"CE");
+    
+    return side_chain
+}
+
+
+
+
+################################################################################
+#
+#        build_MSE(N,CA,C,chi1,chi2,chi3)
+#
+#          Function for building a selenomethionine side chain
+#
+################################################################################
+function build_MSE(N,CA,C,chi1,chi2,chi3) {
+    if(chi1=="?") chi1 = "-"
+    if(chi2=="?") chi2 = "-"
+    if(chi3=="?") chi3 = "-"
+    if((chi1=="-")&&(chi2=="t")) {chi1= -78.3; chi2= -174.7}
+    if((chi1=="t")&&(chi2=="t")) {chi1= 178.9; chi2= 179.0}
+    
+    if(chi1=="+") chi1 = 60
+    if(chi1=="-") chi1 = -64.5
+    if(chi1=="t") chi1 = 178.9
+    
+    if(chi2=="+") chi2 = 60
+    if(chi2=="-") chi2 = -68.5
+    if(chi2=="t") chi2 = 180
+    
+    if(chi3=="+") chi3 = 60
+    if(chi3=="-") chi3 = -75.6
+    if(chi3=="t") chi3 = 180
+    
+    # use abu builder for CB & CG
+    side_chain = build_MET(N,CA,C,chi1,chi2,chi3);
+
+    gsub(" SD  MSE","SE   MSE",side_chain);
     
     return side_chain
 }
@@ -1325,7 +1364,7 @@ if(resnum ~ /[A-Z]$/) resletter = substr(resnum,length(resnum),1)
 
 ++atoms_printed
 
-entry=sprintf("ATOM %6d  %-3s%1s%3s %1s%4d     %7.3f %7.3f %7.3f %5.2f%6.2f\n",\
+entry=sprintf("ATOM %6d  %-3s%1s%3s %1s%4d    %8.3f%8.3f%8.3f %5.2f%6.2f\n",\
 atoms_printed,name,conf,restyp,chain,resnum,atom["X"],atom["Y"],atom["Z"],occ,bfac);
 
 

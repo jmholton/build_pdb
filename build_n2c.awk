@@ -1,8 +1,8 @@
 #! /bin/awk -f
 #
 #
-#	build a polypeptide chain with given phi-psi-omega angles
-#	off the C-terminus of a provided pdb file
+#        build a polypeptide chain with given phi-psi-omega angles                      -James Holton  4-7-25
+#        off the C-terminus of a provided pdb file
 #
 # command format:
 # BUILD RES phi psi omega
@@ -38,44 +38,44 @@ toupper($1) ~ /^BUILD/{
     restyp = toupper($2);
     if(restyp !~ /^[A-Z][A-Z][A-Z]$/)
     {
-	restyp = "ALA"
-	phi=$2; psi=$3; omega=$4;
-	if(phi=="") phi=180
-	if(psi=="") psi=180
-	if(omega=="") omega=180
+        restyp = "ALA"
+        phi=$2; psi=$3; omega=$4;
+        if(phi=="") phi=180
+        if(psi=="") psi=180
+        if(omega=="") omega=180
     }
     else
     {
-	phi=$3; psi=$4; omega=$5;
-	if(phi=="") phi=180
-	if(psi=="") psi=180
-	if(omega=="") omega=180
+        phi=$3; psi=$4; omega=$5;
+        if(phi=="") phi=180
+        if(psi=="") psi=180
+        if(omega=="") omega=180
     }
     # arbitrary number of angles
     for(i=3;i<=NF;++i) {
-	if($i=="OCC") {
-	    ++i;
-	    Occ=$i;
-	    continue;
+        if($i=="OCC") {
+            ++i;
+            Occ=$i;
+            continue;
         }
-	if($i=="BFAC") {
-	    ++i;
-	    Bfac=$i;
-	    continue;
+        if($i=="BFAC") {
+            ++i;
+            Bfac=$i;
+            continue;
         }
-	if($i=="CONF") {
-	    ++i;
-	    newconf=$i;
-	    continue;
+        if($i=="CONF") {
+            ++i;
+            newconf=$i;
+            continue;
         }
-	Build_angles[builds] = Build_angles[builds] " " $i
+        Build_angles[builds] = Build_angles[builds] " " $i
     }
         
     # print out initial N
     if((lastCA==lastO)&&(lastCA==lastC))
     {
-	next_atom(O,CA,C,omega,115.6,1.33);
-	N["X"]=new_atom["X"]; N["Y"]=new_atom["Y"]; N["Z"]=new_atom["Z"];
+        next_atom(O,CA,C,omega,115.6,1.33);
+        N["X"]=new_atom["X"]; N["Y"]=new_atom["Y"]; N["Z"]=new_atom["Z"];
     }
     printf "%s", sprint_atom(N,"N",restyp,resnum);
     lastCA = resnum;
@@ -98,10 +98,10 @@ toupper($1) ~ /^BUILD/{
     # now print out CB (and rest of side chain?)
     if(restyp != "GLY")
     {
-	# position of CB should be 120 degrees away?
-	next_atom(C,N,CA,-120,110.5,1.52);
-	CB["X"]=new_atom["X"]; CB["Y"]=new_atom["Y"]; CB["Z"]=new_atom["Z"];
-	printf "%s", sprint_atom(CB,"CB",restyp,resnum);
+        # position of CB should be 120 degrees away?
+        next_atom(C,N,CA,-120,110.5,1.52);
+        CB["X"]=new_atom["X"]; CB["Y"]=new_atom["Y"]; CB["Z"]=new_atom["Z"];
+        printf "%s", sprint_atom(CB,"CB",restyp,resnum);
     }    
 
     # position of next N follows from psi
@@ -127,29 +127,29 @@ toupper($1) ~ /^BUILD/{
     # read "seed" pdb as a guide (if available)
     if(Atom == "N")
     {
-	N["X"]=X;  N["Y"]=Y;  N["Z"]=Z;
-	lastN = resnum;
+        N["X"]=X;  N["Y"]=Y;  N["Z"]=Z;
+        lastN = resnum;
     }
     if(Atom == "CA") 
     {
-	CA["X"]=X; CA["Y"]=Y; CA["Z"]=Z;
-	lastCA = resnum;
+        CA["X"]=X; CA["Y"]=Y; CA["Z"]=Z;
+        lastCA = resnum;
     }
     if(Atom == "C")   
     {
-	C["X"]=X;  C["Y"]=Y;  C["Z"]=Z;
-	lastC = resnum;
+        C["X"]=X;  C["Y"]=Y;  C["Z"]=Z;
+        lastC = resnum;
     }
     if(Atom == "O")   
     {
-	O["X"]=X;  O["Y"]=Y;  O["Z"]=Z;
-	lastO = resnum;
+        O["X"]=X;  O["Y"]=Y;  O["Z"]=Z;
+        lastO = resnum;
     }
     
     # detect residue breaks
     if(resnum != last_resnum)
     {
-	
+        
     }
     last_resnum = resnum
     
@@ -168,9 +168,9 @@ END{
 
 ################################################################################
 #
-#	sprint_atom(atom, name, restyp, resnum, occ, Bfac)
+#        sprint_atom(atom, name, restyp, resnum, occ, Bfac)
 #
-#  	Function for creating a standard PDB line
+#          Function for creating a standard PDB line
 #
 ################################################################################
 function sprint_atom(atom, _name, _restyp, _resnum, _occ, _Bfac) {
@@ -193,7 +193,7 @@ if(resnum ~ /^[A-Z]/) chain = substr(resnum,1,1)
 while(resnum ~ /^[A-Z]/) resnum = substr(resnum,2)
 ++atoms_printed
 
-entry=sprintf("ATOM %6d  %-3s%1s%3s %1s%4d     %7.3f %7.3f %7.3f %5.2f%6.2f\n",\
+entry=sprintf("ATOM %6d  %-3s%1s%3s %1s%4d    %8.3f%8.3f%8.3f %5.2f%6.2f\n",\
 atoms_printed,name,conf,restyp,chain,resnum,atom["X"],atom["Y"],atom["Z"],occ,Bfac);
 
 return entry
@@ -202,13 +202,13 @@ return entry
 
 ################################################################################
 #
-#	next_atom(atom1,atom2,atom3, chi, angle, bond)
+#        next_atom(atom1,atom2,atom3, chi, angle, bond)
 #
-#  	Function for getting "new atom" xyz coordinates using:
+#          Function for getting "new atom" xyz coordinates using:
 #
-#	three reference atoms (defining two "previous" bonds)
-#	two   angles (the bond angle, and the chi torsion angle)
-#	one   distance (length of the "new" bond)
+#        three reference atoms (defining two "previous" bonds)
+#        two   angles (the bond angle, and the chi torsion angle)
+#        one   distance (length of the "new" bond)
 #
 #
 #     O -atom1                     O - new_atom
@@ -234,9 +234,9 @@ function next_atom(atom1,atom2,atom3, chi, angle, bond) {
     if(angle == "") angle = 109.5
     if(bond == "")
     {
-	bond = 1.54
-	# assume some double-bond character in non-tetrahedral bonds
-	if(angle != 109.5) bond = 1.4
+        bond = 1.54
+        # assume some double-bond character in non-tetrahedral bonds
+        if(angle != 109.5) bond = 1.4
     }
     
 
@@ -261,10 +261,10 @@ function next_atom(atom1,atom2,atom3, chi, angle, bond) {
     # protect against singular vectors
     if(((axis["X"]^2 + axis["Y"]^2 + axis["Z"]^2) == 0)||((bond1["X"]^2 + bond1["Y"]^2 + bond1["Z"]^2)==0))
     {
-	new_atom["X"] = 0;
-	new_atom["Y"] = 0;
-	new_atom["Z"] = 0; 
-	return 0   
+        new_atom["X"] = 0;
+        new_atom["Y"] = 0;
+        new_atom["Z"] = 0; 
+        return 0   
     }
 
     # normalize the "axis" vector
